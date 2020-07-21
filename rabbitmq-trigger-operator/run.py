@@ -1,72 +1,83 @@
+import yaml
 import kopf
 import kubernetes
-import yaml
-from config import TRIGGERS_STORE_FILENAME, TRIGGERS_STORE_PVC_NAME
+from modules.triggers_helper import marshall_trigger
+from exceptions import SecretNotFound, ServiceNotRunning
+from config import EVENTS_PROXY_SERVICE, NAMESPACE_NAME, TRIGGER_OBJECT_NAME_PLURAL, TRIGGERS_STORE_SECRET, TRIGGER_OBJECT_GROUP, TRIGGER_OBJECT_API_VERSION
 
 # Operator startup handler
 @kopf.on.startup()
 def operator_startup(logger, **kwargs):
-  # Check if shared volume exists
-  
-  # Get all RabbitMQTrigger objects in the cluster
+  # Initialize k8s client
+  kubernetes.config.load_incluster_config()
+  api = kubernetes.client.CoreV1Api()
 
-  # Create the file in the PVC
-  # Create the secret if it doesn't exist
-  # Update the secret if exists already
+  try:
+    api.read_namespaced_secret(namespace=NAMESPACE_NAME, name=TRIGGERS_STORE_SECRET)
+  except ApiException:
+    api_custom_objects = kubernetes.client.CustomObjectsApi()
 
-  # Check if events-proxy service is running in the cluster. Otherwise, fail
+    # Get all RabbitMQTrigger objects in the cluster (returns list)
+    triggers = api_custom_objects.list_namespaced_custom_object(
+      TRIGGER_OBJECT_GROUP,
+      TRIGGER_OBJECT_API_VERSION,
+      NAMESPACE_NAME, 
+      TRIGGER_OBJECT_NAME_PLURAL)
+
+    # Marshall list of trigger objects    
+    secret_content = dict(map(marshall_trigger, triggers))
+    body = api.V1Secret(
+      metadata=api.V1ObjectMeta(namespace=NAMESPACE_NAME, name=TRIGGERS_STORE_SECRET),
+      data=secret_content)
+
+    # Create k8s namespaced secret containing the marshalled list of triggers
+    api.create_namespaced_secret(NAMESPACE_NAME, body)
+
+  try:
+    api.read_namespaced_service(EVENTS_PROXY_SERVICE, NAMESPACE_NAME)
+  except ApiException:
+    raise ServiceNotRunning(f'RabbitMQ events proxy service ({EVENTS_PROXY_SERVICE}) is not running')
 
 
 # New trigger object handler
-@kopf.on.create('zalando.org', 'v1', 'databases')
+@kopf.on.create(TRIGGER_OBJECT_GROUP, TRIGGER_OBJECT_API_VERSION, TRIGGER_OBJECT_NAME_PLURAL)
 def handle_new_trigger(body, spec, **kwargs):
-    # Get info from the trigger object
-    destination_function = body['spec']['functionSelector']['matchLabels']['function']
-
-    # Make sure type is provided
-    if not type:
-        raise kopf.HandlerFatalError(f"Type must be set. Got {type}.")
-
-    # Pod template
-    pod = {'apiVersion': 'v1', 'metadata': {'name' : name, 'labels': {'app': 'db'}}}
-
-    # Service template
-    svc = {'apiVersion': 'v1', 'metadata': {'name' : name}, 'spec': { 'selector': {'app': 'db'}, 'type': 'NodePort'}}
-
-    # Update templates based on Database specification
-
-    if type == 'mongo':
-      image = 'mongo:4.0'
-      port = 27017
-      pod['spec'] = { 'containers': [ { 'image': image, 'name': type } ]}
-      svc['spec']['ports'] = [{ 'port': port, 'targetPort': port}]
-    if type == 'mysql':
-      image = 'mysql:8.0'
-      port = 3306
-      pod['spec'] = { 'containers': [ { 'image': image, 'name': type, 'env': [ { 'name': 'MYSQL_ROOT_PASSWORD', 'value': 'my_passwd' } ] } ]}
-      svc['spec']['ports'] = [{ 'port': port, 'targetPort': port}]
-
-    # Make the Pod and Service the children of the Database object
-    kopf.adopt(pod, owner=body)
-    kopf.adopt(svc, owner=body)
-
-    # Object used to communicate with the API Server
+    # Initialize k8s client
+    kubernetes.config.load_incluster_config()
     api = kubernetes.client.CoreV1Api()
 
-    # Create Pod
-    obj = api.create_namespaced_pod(namespace, pod)
-    print(f"Pod {obj.metadata.name} created")
+    # Get info from the trigger object
+    destination_function = body['spec']['functionSelector']['matchLabels']['function']
+    exchange_topic = body['spec']['topic']
 
-    # Create Service
-    obj = api.create_namespaced_service(namespace, svc)
-    print(f"NodePort Service {obj.metadata.name} created, exposing on port {obj.spec.ports[0].node_port}")
+    try:
+      # Read secret
+      secret = api.read_namespaced_secret(TRIGGERS_STORE_SECRET, NAMESPACE_NAME)
 
-    # Update status
-    msg = f"Pod and Service created by Database {name}"
-    return {'message': msg}
+      # Update secret contents
+      secret.body = { exchange_topic: destination_function, **secret.body }
+
+      api.replace_namespaced_secret(TRIGGERS_STORE_SECRET, NAMESPACE_NAME, secret)
+    except ApiException:
+      raise SecretNotFound(f'Secret {TRIGGERS_STORE_SECRET} not found in the namespace {NAMESPACE_NAME}')
+
+    # return something?
+    
 
 # Deleted trigger object handler
-@kopf.on.delete('zalando.org', 'v1', 'databases')
+@kopf.on.delete(TRIGGER_OBJECT_GROUP, TRIGGER_OBJECT_API_VERSION, TRIGGER_OBJECT_NAME_PLURAL)
 def delete(body, **kwargs):
-    msg = f"Database {body['metadata']['name']} and its Pod / Service children deleted"
-    return {'message': msg}
+  # Initialize k8s client
+  kubernetes.config.load_incluster_config()
+  api = kubernetes.client.CoreV1Api()
+
+  # Get info from the trigger object
+  exchange_topic = body['spec']['topic']
+
+  try:
+    # Remove secret
+    secret = api.read_namespaced_secret(TRIGGERS_STORE_SECRET, NAMESPACE_NAME)
+  except ApiException:
+    raise SecretDeletionError(f'Secret {TRIGGERS_STORE_SECRET} not found in the namespace {NAMESPACE_NAME}')
+
+  # return something?
