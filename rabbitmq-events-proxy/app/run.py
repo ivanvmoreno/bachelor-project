@@ -1,8 +1,8 @@
 from time import sleep
 from models.event import EventModel
 from config import CLUSTER_FQDN, RABBITMQ_URI, RABBITMQ_EXCHANGE_NAME, TRIGGERS_REFRESH_RATE
-from modules.amqp_helper import AMQPHelper
-from modules.triggers_helper import diff_triggers, invoke_function, read_triggers
+from utils.amqp_helper import AMQPHelper
+from utils.triggers_helper import diff_triggers, invoke_function, read_triggers
 
 def consume_event(message):
     try:

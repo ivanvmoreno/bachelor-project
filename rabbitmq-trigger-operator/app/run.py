@@ -1,7 +1,7 @@
 import yaml
 import kopf
 import kubernetes
-from modules.triggers_helper import marshall_trigger, remove_trigger_store
+from utils.triggers_helper import marshall_trigger, remove_trigger_store
 from exceptions import MissingTriggerStore, ServiceNotRunning
 from config import EVENTS_PROXY_SERVICE, NAMESPACE_NAME, TRIGGER_OBJECT_NAME_PLURAL, TRIGGERS_STORE_SECRET, TRIGGER_OBJECT_GROUP, TRIGGER_OBJECT_API_VERSION
 

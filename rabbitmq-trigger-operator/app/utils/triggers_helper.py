@@ -1,4 +1,4 @@
-from modules.exceptions import MissingTriggerStore
+from utils.exceptions import MissingTriggerStore
 from config import TRIGGERS_STORE_FILENAME, TRIGGERS_STORE_PVC_NAME
 
 # Marshalling of k8s trigger object(s)
