@@ -16,5 +16,8 @@ TRIGGERS_VOLUME_PATH = getenv("TRIGGERS_PATH")
 # Filename of the triggers store at TRIGGERS_VOLUME_PATH/
 TRIGGERS_FILENAME = 'triggers_store'
 
+# Full path to the mounted secret
+TRIGGERS_STORE_PATH = f'{TRIGGERS_VOLUME_PATH}/{TRIGGERS_FILENAME}'
+
 # Refresh rate to check for differences in the global state, in ms
 TRIGGERS_REFRESH_RATE = 500

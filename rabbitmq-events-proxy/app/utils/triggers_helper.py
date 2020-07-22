@@ -1,11 +1,11 @@
 import json
 import requests
 from pathlib import Path
-from config import KUBELESS_NAMESPACE, TRIGGERS_FILENAME, TRIGGERS_VOLUME_PATH
+from config import KUBELESS_NAMESPACE, TRIGGERS_STORE_PATH
 
 # Read triggers from the mounted secret
 def read_triggers():
-    content = Path(f'{TRIGGERS_VOLUME_PATH}/{TRIGGERS_FILENAME}').read_text()
+    content = Path(TRIGGERS_STORE_PATH).read_text()
     return json.loads(content)
 
 
