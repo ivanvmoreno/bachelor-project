@@ -50,6 +50,3 @@ class AMQPHelper(object):
                     if not self._channel.basic.get(queue=topic):
                         self._channel.queue.delete(queue=topic, if_empty=True)
         return post_cleanup
-
-    def get_current_subscriptions(self):
-        return self._consumers
