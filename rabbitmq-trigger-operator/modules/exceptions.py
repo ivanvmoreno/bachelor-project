@@ -1,5 +1,5 @@
 class ServiceNotRunning(Exception):
     pass
 
-class SecretNotFound(Exception):
+class MissingTriggerStore(Exception):
     pass
