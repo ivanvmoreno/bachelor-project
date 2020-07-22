@@ -3,8 +3,7 @@ from threading import Thread
 from models.event import EventModel
 from config import CLUSTER_FQDN, TRIGGERS_REFRESH_RATE
 from modules.amqp_helper import AMQPHelper
-from modules.triggers_helper import diff_triggers, get_function_uri, read_triggers
-import requests
+from modules.triggers_helper import diff_triggers, invoke_function, read_triggers
 
 def refresh_triggers():
     while(True):
@@ -21,21 +20,13 @@ def refresh_triggers():
             local_state = global_state
         sleep(TRIGGERS_REFRESH_RATE)
 
-
 def consume_event(message):
     try:
+        # Deserialize event body
         event = EventModel.deserialize(message.body)
-        # event.subject, event.data
-        # invoke the function based on the message subject
-        # http invokation with the cluster FQDN
-        # only acknowledge message after successful response from the HTTP request
-        # as of now, procceed only with POSTs (webhooks-like)
-        r = requests.post(get_function_uri(event.subject), data=event.data)
-        # check for successful request
-
+        invoke_function(event['subject'], event['data'])
     except ValueError as error:
         print('Error consuming event', message.body, error)
-
 
 if __name__ == "__main__":
     # Initialize local status from the global store

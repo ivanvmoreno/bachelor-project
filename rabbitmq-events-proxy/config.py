@@ -1,8 +1,8 @@
 import base64
 from os import getenv
 
-# k8s cluster FQDN
-CLUSTER_FQDN = getenv("CLUSTER_FQDN")
+# Namespace where kubeless is deployed
+KUBELESS_NAMESPACE = getenv("KUBELESS_NAMESPACE")
 
 # RabbitMQ cluster connection URI
 RABBITMQ_URI = getenv("RABBITMQ_CONNECTION_URI")
