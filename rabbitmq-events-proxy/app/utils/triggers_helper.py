@@ -27,7 +27,7 @@ def get_function_uri(fn_name):
 # Perform an HTTP invocation of a kubeless function
 def invoke_function(subject, payload):
     # Invoke the function using its HTTP trigger
-    r = requests.post(get_function_uri(subject, data=payload)
+    r = requests.post(get_function_uri(subject, data=payload))
 
     try:
         # Check if request has an unsuccessful status code

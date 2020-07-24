@@ -19,14 +19,13 @@ class AMQPHelper(object):
         self._channel.queue.bind(queue=topic, exchange=self._exchange_name)
         
         # Consume messages from topic, handled by the specified callback
-        self._consumers[topic] = 
-            self._channel.basic.consume(callback=self._callback(callback), queue=topic)
+        self._consumers[topic] = self._channel.basic.consume(callback=self._callback(callback), queue=topic)
 
     def topic_unsubscribe(self, topic):
         # Remove consumer tag from the list of current consumers
         consumer_tag = self._consumers.pop(topic, None)
         
-        if consumer_tag not None:
+        if consumer_tag is not None:
             # Stop queue consumer
             self._channel.basic.cancel(consumer_tag)
 
