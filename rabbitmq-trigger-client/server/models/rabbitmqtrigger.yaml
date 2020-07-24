@@ -1,0 +1,13 @@
+apiVersion: kubeless.io/v1beta1
+kind: RabbitMQTrigger
+metadata:
+  labels:
+    created-by: kubeless
+  name: {}
+  namespace: default
+spec:
+  functionSelector:
+    matchLabels:
+      created-by: kubeless
+      function: {}
+  topic: {}
