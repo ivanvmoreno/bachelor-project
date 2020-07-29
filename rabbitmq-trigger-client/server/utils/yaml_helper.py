@@ -1,5 +1,6 @@
-import yaml
 from pathlib import Path
+
+import yaml
 
 # Read contents from a file
 def read_file(file_path):

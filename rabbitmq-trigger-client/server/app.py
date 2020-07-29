@@ -1,6 +1,8 @@
-import config
-from yaml_helper import read_file, format_string, yaml_to_json
 from flask import Flask, render_template
+import kubernetes
+
+import config
+import utils.yaml_helper
 
 app = Flask(__name__, static_url_path='', static_folder=config.FRONTEND_BUILD_DIR, template_folder=config.FRONTEND_BUILD_DIR)
 

@@ -1,9 +1,9 @@
-import yaml
 import kopf
 import kubernetes
-from utils.triggers_helper import marshall_trigger, remove_trigger_store
-from exceptions import MissingTriggerStore, ServiceNotRunning
-from config import EVENTS_PROXY_SERVICE, NAMESPACE_NAME, TRIGGER_OBJECT_NAME_PLURAL, TRIGGERS_STORE_SECRET, TRIGGER_OBJECT_GROUP, TRIGGER_OBJECT_API_VERSION
+
+import config
+import utils.exceptions
+import utils.triggers_helper
 
 # Operator startup handler
 @kopf.on.startup()
@@ -22,9 +22,9 @@ def operator_startup(logger, **_):
       TRIGGER_OBJECT_GROUP,
       TRIGGER_OBJECT_API_VERSION,
       NAMESPACE_NAME, 
-      TRIGGER_OBJECT_NAME_PLURAL)
+      TRIGGER_OBJECT_PLURAL)
 
-    # Marshall list of trigger objects    
+    # Marshall list of trigger objects
     secret_content = dict(map(marshall_trigger, triggers))
     body = api.V1Secret(
       metadata=api.V1ObjectMeta(namespace=NAMESPACE_NAME, name=TRIGGERS_STORE_SECRET),
@@ -40,7 +40,7 @@ def operator_startup(logger, **_):
 
 
 # New trigger object handler
-@kopf.on.create(TRIGGER_OBJECT_GROUP, TRIGGER_OBJECT_API_VERSION, TRIGGER_OBJECT_NAME_PLURAL)
+@kopf.on.create(TRIGGER_OBJECT_GROUP, TRIGGER_OBJECT_API_VERSION, TRIGGER_OBJECT_PLURAL)
 def handle_new_trigger(spec, **_):
   # Initialize k8s client
   kubernetes.config.load_incluster_config()
@@ -62,7 +62,7 @@ def handle_new_trigger(spec, **_):
     
 
 # Deleted trigger object handler
-@kopf.on.delete(TRIGGER_OBJECT_GROUP, TRIGGER_OBJECT_API_VERSION, TRIGGER_OBJECT_NAME_PLURAL)
+@kopf.on.delete(TRIGGER_OBJECT_GROUP, TRIGGER_OBJECT_API_VERSION, TRIGGER_OBJECT_PLURAL)
 def delete(spec, **_):
   # Initialize k8s client
   kubernetes.config.load_incluster_config()
