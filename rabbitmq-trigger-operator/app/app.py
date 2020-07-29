@@ -1,3 +1,5 @@
+import json
+
 import kopf
 import kubernetes
 
@@ -24,11 +26,11 @@ def operator_startup(logger, **_):
       NAMESPACE_NAME, 
       TRIGGER_OBJECT_PLURAL)
 
-    # Marshall list of trigger objects
-    secret_content = dict(map(marshall_trigger, triggers))
+    # Marshall list of trigger objects into JSON
+    triggers_store = json.dumps(dict(map(marshall_trigger, triggers)))
     body = api.V1Secret(
       metadata=api.V1ObjectMeta(namespace=NAMESPACE_NAME, name=TRIGGERS_STORE_SECRET),
-      data=secret_content)
+      data=dict((TRIGGERS_SECRET_KEY, triggers_store)))
 
     # Create k8s namespaced secret containing the marshalled list of triggers
     api.create_namespaced_secret(NAMESPACE_NAME, body)
@@ -55,7 +57,8 @@ def handle_new_trigger(spec, **_):
     secret = api.read_namespaced_secret(TRIGGERS_STORE_SECRET, NAMESPACE_NAME)
 
     # Update secret contents
-    secret.body = { exchange_topic: destination_function, **secret.body }
+    updated_store = json.dumps({ exchange_topic: destination_function, **json.loads(secret.body['TRIGGERS_SECRET_KEY']) })
+    secret.body = dict((TRIGGERS_SECRET_KEY, updated_store))
     api.replace_namespaced_secret(TRIGGERS_STORE_SECRET, NAMESPACE_NAME, secret)
   except ApiException:
     raise kopf.TemporaryError(f'Secret {TRIGGERS_STORE_SECRET} not found in the namespace {NAMESPACE_NAME}', delay=30)
@@ -79,7 +82,8 @@ def delete(spec, **_):
 
   try:
     # Update secret contents
-    secret.body = remove_trigger_store(exchange_topic, secret.body)
+    updated_store = json.dumps(remove_trigger_store(exchange_topic, json.loads(secret.body['TRIGGERS_SECRET_KEY'])))
+    secret.body = dict((TRIGGERS_SECRET_KEY, updated_store))
     api.replace_namespaced_secret(TRIGGERS_STORE_SECRET, NAMESPACE_NAME, secret)
   except MissingTriggerStore as error:
     raise kopf.TemporaryError(f'Trigger (topic {exchange_topic}) not found in the trigger secret store {TRIGGERS_STORE_SECRET}', delay=30)
