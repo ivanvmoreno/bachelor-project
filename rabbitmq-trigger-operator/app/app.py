@@ -18,6 +18,7 @@ def operator_startup(logger, **_):
     api.read_namespaced_secret(namespace=TRIGGERS_NAMESPACE, name=TRIGGERS_STORE_SECRET)
   except ApiException:
     api_custom_objects = kubernetes.client.CustomObjectsApi()
+    api_apps = kubernetes.client.AppsV1Api()
 
     # Get all RabbitMQTrigger objects in the cluster (returns list)
     triggers = api_custom_objects.list_namespaced_custom_object(
@@ -35,10 +36,9 @@ def operator_startup(logger, **_):
     # Create k8s namespaced secret containing the marshalled list of triggers
     api.create_namespaced_secret(TRIGGERS_NAMESPACE, body)
 
-  try:
-    api.read_namespaced_service(EVENTS_PROXY_SERVICE, TRIGGERS_NAMESPACE)
-  except ApiException:
-    raise ServiceNotRunning(f'RabbitMQ events proxy service ({EVENTS_PROXY_SERVICE}) is not running')
+    # Check deployment status of the rabbitmq-events-proxy component
+    if not api_apps.read_namespaced_deployment(EVENTS_PROXY_DEPLOYMENT, TRIGGERS_NAMESPACE).status.available_replicas != 1:
+      raise DeploymentNotRunning(f'RabbitMQ events proxy deployment ({EVENTS_PROXY_DEPLOYMENT}) is not running')
 
 
 # New trigger object handler

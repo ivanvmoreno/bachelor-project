@@ -18,5 +18,5 @@ TRIGGERS_STORE_SECRET = getenv('TRIGGERS_PLURAL')
 # Key in which to store the triggers global state on the secret
 TRIGGERS_SECRET_KEY = 'triggers_store'
 
-# Service name of the RabbitMQ events proxy
-EVENTS_PROXY_SERVICE = getenv('EVENTS_PROXY_SERVICE')
+# Deployment name of the RabbitMQ events proxy
+EVENTS_PROXY_DEPLOYMENT = getenv('EVENTS_PROXY_DEPLOYMENT')

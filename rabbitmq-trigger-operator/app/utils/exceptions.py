@@ -1,4 +1,4 @@
-class ServiceNotRunning(Exception):
+class DeploymentNotRunning(Exception):
     pass
 
 class MissingTriggerStore(Exception):
