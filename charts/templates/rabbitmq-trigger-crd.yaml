@@ -1,9 +1,9 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: rabbitmqtriggers.kubeless.io
+  name: rabbitmqtriggers.kubeless-rabbitmq.io
 spec:
-  group: kubeless.io
+  group: kubeless-rabbitmq.io
   names:
     kind: RabbitMQTrigger
     plural: rabbitmqtriggers
