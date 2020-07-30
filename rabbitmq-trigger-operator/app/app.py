@@ -49,7 +49,7 @@ def handle_new_trigger(spec, **_):
   api = kubernetes.client.CoreV1Api()
 
   # Get info from the trigger object
-  destination_function = spec['functionSelector']['matchLabels']['function']
+  destination_function = spec['function']
   exchange_topic = spec['topic']
 
   try:

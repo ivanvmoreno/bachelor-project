@@ -3,7 +3,7 @@ from utils.exceptions import MissingTriggerStore
 
 # Marshalling of k8s trigger object(s)
 def marshall_trigger(trigger):
-    return (trigger['spec']['topic'], trigger['spec']['functionSelector']['matchlabels']['function'])
+    return (trigger['spec']['topic'], trigger['spec']['function'])
 
 
 # Remove a trigger from a provided store
