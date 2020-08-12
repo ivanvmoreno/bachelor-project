@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-trigger-client-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: rabbitmq-trigger-client
+  template:
+    metadata:
+      labels:
+        component: rabbitmq-trigger-client
+    spec:
+      containers:
+        - name: rabbitmq-trigger-client
+          image: uxioandrade/tutorial-api
+          ports:
+            - containerPort: 8080
+          env:
+            - name: FRONTEND_BUILD_DIR
+              value: {{ .Values.rabbitmqTriggerClient.frontendBuildPath }}
+            - name: KUBELESS_NAMESPACE
+              value: {{ .Values.kubeless.namespace }}
+            - name: KUBELESS_FN_PLURAL
+              value: {{ .Values.functionObject.plural }}
+            - name: KUBELESS_GROUP
+              value: {{ .Values.functionObject.group }}
+            - name: KUBELESS_FN_VERSION
+              value: {{ .Values.functionObject.version }}
+            - name: TRIGGERS_GROUP
+              value: {{ .Values.rabbitmqtriggerObject.group }}
+            - name: TRIGGERS_VERSION
+              value: {{ .Values.rabbitmqtriggerObject.version }}
+            - name: TRIGGERS_PLURAL
+              value: {{ .Values.rabbitmqtriggerObject.plural }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-trigger-client-service
+spec:
+  selector:
+    component: rabbitmq-trigger-client
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: rabbitmq-trigger-client-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: {{ .Values.rabbitmqTriggerClient.fqdn }}
+    http:
+      paths:
+      - backend:
+          serviceName: rabbitmq-trigger-client-service
+          servicePort: 80

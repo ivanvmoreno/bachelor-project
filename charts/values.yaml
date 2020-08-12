@@ -1,0 +1,37 @@
+# RabbitMQTrigger Custom Resource Definition details
+rabbitmqtriggerObject:
+  # Namespace where RabbitMQTrigger objects are grouped
+  namespace: default
+  plural: rabbitmqtriggers
+  group: kubeless-rabbitmq.io
+  version: v1
+
+# RabbitMQ cluster service details
+rabbitmqCluster:
+  connectionUri:
+  exchangeName:
+
+# Mount point for the secret containing the triggers store
+triggersStoreSecret:
+  name:
+  # Key in which to store the global triggers state
+  keyName:
+  mountPath:
+
+rabbitmqTriggerClient:
+  # Ingress FQDN for the rabbitmq-trigger-client
+  fqdn:
+  # Output directory of the rabbitmq-trigger-client frontend build
+  frontendBuildPath:
+
+# kubeless details
+kubeless:
+  namespace:
+  functionObject:
+    plural:
+    group:
+    version:
+
+# rabbitmq-events-proxy service details
+eventsProxy: 
+  serviceName: 

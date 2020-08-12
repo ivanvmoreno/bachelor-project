@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-trigger-operator-deployment
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      component: rabbitmq-trigger-operator
+  template:
+    metadata:
+      labels:
+        component: rabbitmq-trigger-operator
+    spec:
+      serviceAccountName: rabbitmq-trigger-operator-account
+      containers:
+      - name: rabbitmq-trigger-operator
+        image: nolar/kopf-operator
+        env:
+          - name: KUBELESS_NAMESPACE
+            value: {{ .Values.kubeless.namespace }}
+          - name: TRIGGERS_GROUP
+            value: {{ .Values.rabbitmqtriggerObject.group }}
+          - name: TRIGGERS_VERSION
+            value: {{ .Values.rabbitmqtriggerObject.version }}
+          - name: TRIGGERS_PLURAL
+            value: {{ .Values.rabbitmqtriggerObject.plural }}
+          - name: EVENTS_PROXY_DEPLOYMENT
+            value: {{ .Values.eventsProxy.serviceName }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ .Values. }}
+  name: rabbitmq-trigger-operator-account
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: rabbitmq-trigger-operator-role-cluster
+rules:
+  - apiGroups: [zalando.org]
+    resources: [clusterkopfpeerings]
+    verbs: [list, watch, patch, get]
+  - apiGroups: [apiextensions.k8s.io]
+    resources: [customresourcedefinitions]
+    verbs: [list, get]
+  - apiGroups: [zalando.org]
+    resources: [kopfexamples]
+    verbs: [list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: rabbitmq-trigger-operator-rolebinding-cluster
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rabbitmq-trigger-operator-role-cluster
+subjects:
+  - kind: ServiceAccount
+    name: rabbitmq-trigger-operator-account
+    namespace: {{ .Values. }}

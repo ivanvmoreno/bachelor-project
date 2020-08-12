@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-trigger-proxy-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: rabbitmq-trigger-proxy
+  template:
+    metadata:
+      labels:
+        component: rabbitmq-trigger-proxy
+    spec:
+      containers:
+        - name: rabbitmq-trigger-proxy
+          image: uxioandrade/tutorial-api
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: rabbitmq-triggers-store
+              mountPath: {{ .Values.triggersStoreSecret.mountPath }}
+              readOnly: true
+          env:
+            - name: KUBELESS_NAMESPACE
+              value: {{ .Values.kubeless.namespace }}
+            - name: RABBITMQ_CONNECTION_URI
+              value: {{ .Values.rabbitmqCluster.connectionUri }}
+            - name: RABBITMQ_EXCHANGE_NAME
+              value: {{ .Values.rabbitmqCluster.exchangeName }}
+            - name: TRIGGERS_MOUNT_PATH
+              value: {{ .Values.triggersStoreSecret.mountPath }}
+      volumes:
+        - name: rabbitmq-triggers-store
+          secret:
+            secretName: {{ .Values.triggersStoreSecret.name }}
