@@ -36,9 +36,9 @@ def operator_startup(logger, **_):
     # Create k8s namespaced secret containing the marshalled list of triggers
     api.create_namespaced_secret(TRIGGERS_NAMESPACE, body)
 
-    # Check deployment status of the rabbitmq-events-proxy component
-    if not api_apps.read_namespaced_deployment(EVENTS_PROXY_DEPLOYMENT, TRIGGERS_NAMESPACE).status.available_replicas != 1:
-      raise DeploymentNotRunning(f'RabbitMQ events proxy deployment ({EVENTS_PROXY_DEPLOYMENT}) is not running')
+  # Check deployment status of the rabbitmq-events-proxy component
+  if not api_apps.read_namespaced_deployment(EVENTS_PROXY_DEPLOYMENT, TRIGGERS_NAMESPACE).status.available_replicas != 1:
+    raise DeploymentNotRunning(f'RabbitMQ events proxy deployment ({EVENTS_PROXY_DEPLOYMENT}) is not running')
 
 
 # New trigger object handler
