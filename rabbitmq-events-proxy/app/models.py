@@ -18,12 +18,12 @@ class EventModel(EventBase):
             source,
             subject,
             id,
-            datacontenttype = None,
-            data = None):
+            data,
+            datacontenttype = None):
         self.specversion = specversion
         self.type = type
         self.source = source
         self.subject = subject
         self.id = id
-        self.datacontenttype = datacontenttype
         self.data = data
+        self.datacontenttype = datacontenttype
