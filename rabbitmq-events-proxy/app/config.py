@@ -11,13 +11,13 @@ RABBITMQ_URI = getenv('RABBITMQ_CONNECTION_URI')
 RABBITMQ_EXCHANGE_NAME = getenv('RABBITMQ_EXCHANGE_NAME')
 
 # Path to the directory in which the triggers store volume is mounted
-TRIGGERS_VOLUME_PATH = getenv('TRIGGERS_PATH')
+TRIGGERS_MOUNT_PATH = getenv('TRIGGERS_MOUNT_PATH')
 
-# Filename of the triggers store at TRIGGERS_VOLUME_PATH/
-TRIGGERS_FILENAME = 'triggers_store'
+# Key (file in the mounted volume) where the secret stores the global triggers state
+TRIGGERS_SECRET_KEY = 'triggers_store'
 
 # Full path to the mounted secret
-TRIGGERS_STORE_PATH = f'{TRIGGERS_VOLUME_PATH}/{TRIGGERS_FILENAME}'
+TRIGGERS_STORE_PATH = f'{TRIGGERS_MOUNT_PATH}/{TRIGGERS_SECRET_KEY}'
 
 # Refresh rate to check for differences in the global state, in ms
 TRIGGERS_REFRESH_RATE = 500

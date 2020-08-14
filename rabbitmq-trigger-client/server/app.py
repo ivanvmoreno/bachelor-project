@@ -21,10 +21,10 @@ def serve_frontend():
 def list_functions(functions):
     # List all kubeless functions in the namespace
     functions = api.list_namespaced_custom_object(
-            config.KUBELESS_FUNCTION_GROUP,
-            config.KUBELESS_FUNCTION_VERSION,
+            config.KUBELESS_GROUP,
+            config.KUBELESS_FN_VERSION,
             config.KUBELESS_NAMESPACE, 
-            config.KUBELESS_FUNCTION_PLURAL)
+            config.KUBELESS_FN_PLURAL)
     
     query = request.args.get('search')
 
@@ -46,10 +46,10 @@ def list_functions(functions):
 def list_function_triggers(function):
     # List all RabbitMQTriggers in the namespace
     triggers = api.list_namespaced_custom_object(
-            config.TRIGGER_OBJECT_GROUP,
-            config.TRIGGER_OBJECT_VERSION,
+            config.TRIGGERS_GROUP,
+            config.TRIGGERS_VERSION,
             config.KUBELESS_NAMESPACE,
-            config.TRIGGER_OBJECT_PLURAL)
+            config.TRIGGERS_PLURAL)
 
     # Filter triggers by subject function
     filtered = [t['metadata']['name'] for t in triggers if t['functionSelector']['matchLabels']['function'] == function]
@@ -71,10 +71,10 @@ def create_function_trigger(function):
 
         # Create RabbitMQTrigger in k8s
         api.create_namespaced_custom_object(
-            config.TRIGGER_OBJECT_GROUP,
-            config.TRIGGER_OBJECT_VERSION,
+            config.TRIGGERS_GROUP,
+            config.TRIGGERS_VERSION,
             config.KUBELESS_NAMESPACE,
-            config.TRIGGER_OBJECT_PLURAL,
+            config.TRIGGERS_PLURAL,
             body)
 
         return flask.Response(status=200)
@@ -89,10 +89,10 @@ def delete_function_trigger(trigger):
     try:
         # Delete RabbitMQTrigger in k8s
         api.create_namespaced_custom_object(
-            config.TRIGGER_OBJECT_GROUP,
-            config.TRIGGER_OBJECT_VERSION,
+            config.TRIGGERS_GROUP,
+            config.TRIGGERS_VERSION,
             config.KUBELESS_NAMESPACE,
-            config.TRIGGER_OBJECT_PLURAL,
+            config.TRIGGERS_PLURAL,
             trigger)
         
         return flask.Response(status=200)
