@@ -3,11 +3,11 @@ name: rabbitmq-kubeless-cluster
 version: 1.0
 dependencies:
   - name: bitnami/rabbitmq
-    version: 7.5.7
+    version: ~7.5.7
     repository: https://charts.bitnami.com/bitnami
   - name: incubator/kubeless
-    version: 2.1.1
+    version: ~2.1.1
     repository: https://kubernetes-charts-incubator.storage.googleapis.com/
   - name: bitnami/nginx-ingress-controller
-    version: 5.4.1
+    version: ~5.4.1
     repository: https://charts.bitnami.com/bitnami
