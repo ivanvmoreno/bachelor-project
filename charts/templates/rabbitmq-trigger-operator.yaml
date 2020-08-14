@@ -33,7 +33,7 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: {{ .Values. }}
+  namespace: {{ .Values.rabbitmqtriggerObject.namespace }}
   name: rabbitmq-trigger-operator-account
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -41,15 +41,9 @@ kind: ClusterRole
 metadata:
   name: rabbitmq-trigger-operator-role-cluster
 rules:
-  - apiGroups: [zalando.org]
-    resources: [clusterkopfpeerings]
+  - apiGroups: [{{ .Values.rabbitmqtriggerObject.group }}]
+    resources: [{{ .Values.rabbitmqtriggerObject.plural }}]
     verbs: [list, watch, patch, get]
-  - apiGroups: [apiextensions.k8s.io]
-    resources: [customresourcedefinitions]
-    verbs: [list, get]
-  - apiGroups: [zalando.org]
-    resources: [kopfexamples]
-    verbs: [list, watch]
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
@@ -62,4 +56,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: rabbitmq-trigger-operator-account
-    namespace: {{ .Values. }}
+    namespace: {{ .Values.rabbitmqtriggerObject.namespace }}
