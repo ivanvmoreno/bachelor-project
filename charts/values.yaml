@@ -18,12 +18,6 @@ triggersStoreSecret:
   keyName:
   mountPath:
 
-rabbitmqTriggerClient:
-  # Ingress FQDN for the rabbitmq-trigger-client
-  fqdn:
-  # Output directory of the rabbitmq-trigger-client frontend build
-  frontendBuildPath:
-
 # kubeless details
 kubeless:
   namespace:
@@ -32,6 +26,26 @@ kubeless:
     group:
     version:
 
-# rabbitmq-events-proxy service details
-eventsProxy: 
+rabbitmqEventsProxy:
+  # rabbitmq-events-proxy service details
   serviceName: 
+  image:
+    repository:
+    tag: latest
+    pullPolicy: IfNotPresent
+
+rabbitmqTriggerClient:
+  # Ingress FQDN for the rabbitmq-trigger-client
+  fqdn:
+  # Output directory of the rabbitmq-trigger-client frontend build
+  frontendBuildPath:
+  image:
+    repository:
+    tag: latest
+    pullPolicy: IfNotPresent
+
+rabbitmqTriggerOperator:
+  image:
+    repository:
+    tag: latest
+    pullPolicy: IfNotPresent

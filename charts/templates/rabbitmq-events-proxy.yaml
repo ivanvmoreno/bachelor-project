@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: rabbitmq-trigger-proxy
-          image: uxioandrade/tutorial-api
+          image: {{ .Values.rabbitmqEventsProxy.image.repository }}:{{ .Values.rabbitmqEventsProxy.image.tag }}
+          imagePullPolicy: {{ .Values.rabbitmqEventsProxy.image.pullPolicy }}
           ports:
             - containerPort: 8080
           volumeMounts:

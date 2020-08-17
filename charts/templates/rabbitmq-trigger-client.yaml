@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: rabbitmq-trigger-client
-          image: uxioandrade/tutorial-api
+          image: {{ .Values.rabbitmqTriggerClient.image.repository }}:{{ .Values.rabbitmqTriggerClient.image.tag }}
+          imagePullPolicy: {{ .Values.rabbitmqTriggerClient.image.pullPolicy }}
           ports:
             - containerPort: 8080
           env:

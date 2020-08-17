@@ -17,7 +17,8 @@ spec:
       serviceAccountName: rabbitmq-trigger-operator-account
       containers:
       - name: rabbitmq-trigger-operator
-        image: nolar/kopf-operator
+        image: {{ .Values.rabbitmqTriggerOperator.image.repository }}:{{ .Values.rabbitmqTriggerOperator.image.tag }}
+        imagePullPolicy: {{ .Values.rabbitmqTriggerOperator.image.pullPolicy }}
         env:
           - name: KUBELESS_NAMESPACE
             value: {{ .Values.kubeless.namespace }}
@@ -28,7 +29,7 @@ spec:
           - name: TRIGGERS_PLURAL
             value: {{ .Values.rabbitmqtriggerObject.plural }}
           - name: EVENTS_PROXY_DEPLOYMENT
-            value: {{ .Values.eventsProxy.serviceName }}
+            value: {{ .Values.rabbitmqEventsProxy.serviceName }}
 ---
 apiVersion: v1
 kind: ServiceAccount
